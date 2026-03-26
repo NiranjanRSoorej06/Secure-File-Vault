@@ -119,7 +119,6 @@ npm start
 
 ## Screenshots
 
-Add screenshots of the user interface here.
 
 ---
 
