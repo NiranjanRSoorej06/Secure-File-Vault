@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# environment variables (VERY IMPORTANT)
+.env
+
+# logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# build folders (future frontend)
+dist/
+build/
+
+# uploads (for your project later)
+uploads/
