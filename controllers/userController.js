@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const jwt=require("jsonwebtoken");
 
 //@desc Register new user
 //@route POST /api/users/register
@@ -35,4 +36,36 @@ const  registerUser = async (req,res)=>{
     }
 };
 
-module.exports = {registerUser};
+//@desc Login user
+//@route POST /api/users/login
+//@access Public
+const loginUser = async (req,res)=>{
+    try{
+        const {email,password}=req.body;
+
+        //check user
+        const user=await User.findOne({email});
+
+        if(user &&(await bcrypt.compare(password,user.password))){
+            res.json({
+                _id:user._id,
+                username:user.username,
+                email:user.email,
+                token:generateToken(user._id)
+            });
+        }else{
+            res.status(401).json({message:"Invalid email or password"});
+        }
+    }catch(error){
+        res.send(500).json({message:error.message});
+    }
+};
+
+//JWT Generator
+const generateToken = (id) =>{
+    return jwt.sign({ id},process.env.JWT_SECRET,{
+        expiresIn:"7d"
+    });
+};
+
+module.exports = {registerUser,loginUser};
