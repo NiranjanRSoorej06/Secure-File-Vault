@@ -10,6 +10,29 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+//Allowed file types
+const allowedTypes =[
+    "image/jpeg",
+    "image/png",
+    "application/pdf"
+];
+
+//file filter
+const fileFilter =(req,file,cb) =>{
+    if(allowedTypes.includes(file.mimetype)){
+        cb(null,true);
+    }else{
+        cb(new Error("Only JPG, PNG, PDF allowed"),false);
+    }
+};
+
+//multer config
+const upload = multer({ 
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5*1024*1024   // 5MB
+    }
+ });
 
 module.exports = upload;

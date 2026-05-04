@@ -2,6 +2,7 @@
 //@route POST /api/files/upload
 //@access Private
 const File = require("../models/File");
+const mongoose=require("mongoose");
 
 const uploadFile = async (req,res) =>{
     try{
@@ -45,24 +46,32 @@ const fs = require("fs");
 
 const downloadFile = async (req,res)=>{
     try{
+        //1. Validate ObjectId
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).json({message:"Invalid file ID"});
+        }
+
+        //2. Find file in DB
         const file = await File.findById(req.params.id);
 
         if(!file){
             return res.status(404).json({message:"File not found"});
         }
 
-        //ensure user owns file
+        //3. Ensure user owns file
         if(file.user.toString() !== req.user._id.toString()) {
-            return req.status(401).json({message:"Not authorized"});
+            return res.status(401).json({message:"Not authorized"});
         }
 
+        //4. Build safe file path
         const filePath = path.join(__dirname,"..","uploads",file.filename);
 
-        //check file exists
+        //5. Check file exists
         if(!fs.existsSync(filePath)){
             return res.status(404).json({message:"File missing on server"});
         }
 
+        //6. Send file securely
         res.download(filePath,file.originalName);
     }catch(error){
         return res.status(500).json({message:error.message});
@@ -75,6 +84,12 @@ const downloadFile = async (req,res)=>{
 //@access Private
 const deleteFile = async (req,res)=>{
     try{
+        //1. Validate ObjectID
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).json({message:"Invalid file ID"});
+        }
+
+        //2. Find file
         const file = await File.findById(req.params.id);
 
         //if file not found
@@ -82,20 +97,25 @@ const deleteFile = async (req,res)=>{
             return res.status(404).json({message:"File not Found"});
         }
 
-        //ownership check
+        //3. Ownership check
         if(file.user.toString() != req.user._id.toString()){
             return res.status(401).json({message:"Not authorized"});
         }
         
-        //delete from disk
+        //4. Builf file path
         const filePath = path.join(__dirname,"../uploads",file.filename);
+
+        //5. Delete file from disk(safe)
         if(fs.existsSync(filePath)){
             fs.unlinkSync(filePath);
+        }else{
+            console.warn("File missing on disk: ",filePath);
         }
 
-        //delete from DB
+        //6. Delete from DB
         await file.deleteOne();
 
+        //7. Response
         res.status(200).json({message:"File deleted successfully"});    
     }catch(error){
         return res.status(500).json({message:error.message});
