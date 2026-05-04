@@ -37,4 +37,36 @@ const getUserFiles = async (req,res) =>{
     }
 };
 
-module.exports = {uploadFile,getUserFiles};
+//@desc Download file
+//@route GET /api/files/:id
+//@access Private
+const path = require("path");
+const fs = require("fs");
+
+const downloadFile = async (req,res)=>{
+    try{
+        const file = await File.findById(req.params.id);
+
+        if(!file){
+            return res.status(404).json({message:"File not found"});
+        }
+
+        //ensure user owns file
+        if(file.user.toString() !== req.user._id.toString()) {
+            return req.status(401).json({message:"Not authorized"});
+        }
+
+        const filePath = path.join(__dirname,"..","uploads",file.filename);
+
+        //check file exists
+        if(!fs.existsSync(filePath)){
+            return res.status(404).json({message:"File missing on server"});
+        }
+
+        res.download(filePath,file.originalName);
+    }catch(error){
+        return res.status(500).json({message:error.message});
+    }
+};
+
+module.exports = { uploadFile,getUserFiles,downloadFile };
