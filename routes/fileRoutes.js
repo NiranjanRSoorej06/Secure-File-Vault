@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { uploadFile, getUserFiles ,downloadFile } = require("../controllers/fileController");
+const { uploadFile, getUserFiles ,downloadFile,deleteFile } = require("../controllers/fileController");
 const upload = require("../middleware/uploadMiddleware");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -12,5 +12,8 @@ router.get("/",protect,getUserFiles);
 
 //Download Route
 router.get("/:id",protect,downloadFile);
+
+//Delete Route
+router.delete("/:id",protect,deleteFile);
 
 module.exports = router;
