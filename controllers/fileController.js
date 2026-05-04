@@ -5,8 +5,6 @@ const File = require("../models/File");
 
 const uploadFile = async (req,res) =>{
     try{
-        console.log("FILE:", req.file); // keep this for now
-
         if(!req.file){
             return res.status(400).json({message:"No file uploaded"});
         }
@@ -27,4 +25,16 @@ const uploadFile = async (req,res) =>{
     }
 }; 
 
-module.exports = {uploadFile};
+//@desc Get logged-in user's files
+//@route GET /api/files
+//@access Private
+const getUserFiles = async (req,res) =>{
+    try{
+        const files = await File.find({ user:req.user._id});
+        res.status(200).json(files);
+    }catch(error){
+        res.status(500).json({message:error.message});
+    }
+};
+
+module.exports = {uploadFile,getUserFiles};
