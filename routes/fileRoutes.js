@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const { uploadFile, getUserFiles ,downloadFile,deleteFile } = require("../controllers/fileController");
+const { uploadFile, getUserFiles ,downloadFile,deleteFile,renameFile } = require("../controllers/fileController");
 const upload = require("../middleware/uploadMiddleware");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -30,5 +30,8 @@ router.get("/:id",protect,downloadFile);
 
 //Delete Route
 router.delete("/:id",protect,deleteFile);
+
+//Rename Route
+router.put("/:id/rename",protect,renameFile);
 
 module.exports = router;

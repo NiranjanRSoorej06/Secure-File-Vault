@@ -156,4 +156,54 @@ const deleteFile = async (req,res)=>{
     }
 };
 
-module.exports = { uploadFile,getUserFiles,downloadFile,deleteFile };
+//@desc Rename File (update originalName)
+//@route PUT /api/files/:id/rename
+//@access Private
+const renameFile = async (req,res)=>{
+    try{
+        const {newName}=req.body;
+
+        //1. Validate id
+        if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+            return res.status(400).json({message:"Invalid file ID"});
+        }
+
+        //2. Validate input
+        if(!newName || !newName.trim()){
+            return res.status(400).json({meassage:"New name is required"});
+        }
+
+        //Bonus: Prevent path tricks / weird chars
+        const safeName = newName.replace(/[\/\\?%*:|"<>]/g,"").trim();
+
+        //3. Find file
+        const file = await File.findById(req.params.id);
+        if(!file){
+            return res.status(404).json({message:"File not found"});
+        }
+
+        //4. Ownership check
+        if(file.user.toString()!== req.user._id.toString()){
+            return res.status(401).json({message:"Not authorized"});
+        }
+
+        //5. Update
+        file.originalName= safeName;
+        await file.save();
+
+        //6. Respond (include URL)
+        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+
+        res.status(200).json({
+            message:"File renamed Successfully",
+            file:{
+                ...file._doc,
+                fileUrl
+            }
+        });
+    }catch(error){
+        return res.status(500).json({message:error.message});
+    }
+};
+
+module.exports = { uploadFile,getUserFiles,downloadFile,deleteFile,renameFile };
