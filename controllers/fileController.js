@@ -19,7 +19,8 @@ const uploadFile = async (req,res) =>{
 
         res.status(200).json({
             message:"File uploaded successfully",
-            file:newFile
+            file:newFile,
+            fileUrl:`${req.protocol}://${req.get("host")}/uploads/${newFile.filename}`
         });
     }catch(error){
         res.status(500).json({message:error.message});
