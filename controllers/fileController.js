@@ -20,7 +20,7 @@ const uploadFile = async (req,res) =>{
         res.status(200).json({
             message:"File uploaded successfully",
             file:newFile,
-            fileUrl:`${req.protocol}://${req.get("host")}/uploads/${newFile.filename}`
+            fileUrl:`${req.protocol}://${req.get("host")}/api/files/${newFile._id}`
         });
     }catch(error){
         res.status(500).json({message:error.message});
@@ -56,7 +56,7 @@ const getUserFiles = async (req,res) =>{
 
         const filesWithUrl = files.map(file => ({
             ...file._doc,
-            fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+            fileUrl: `${req.protocol}://${req.get("host")}/api/files/${file._id}`
         }));
 
         //response
@@ -192,7 +192,7 @@ const renameFile = async (req,res)=>{
         await file.save();
 
         //6. Respond (include URL)
-        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+        const fileUrl = `${req.protocol}://${req.get("host")}/api/files/${file._id}`;
 
         res.status(200).json({
             message:"File renamed Successfully",
