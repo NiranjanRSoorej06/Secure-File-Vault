@@ -24,7 +24,7 @@ app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 
 //test route
 app.get("/",(req,res)=>{
-    app.send("API runninig");
+    res.send("API runninig");
 });
 
 const PORT=process.env.PORT || 5000;

@@ -32,8 +32,41 @@ const uploadFile = async (req,res) =>{
 //@access Private
 const getUserFiles = async (req,res) =>{
     try{
-        const files = await File.find({ user:req.user._id});
-        res.status(200).json(files);
+        //query params
+        const page = parseInt(req.query.page)||1;
+        const limit = parseInt(req.query.limit)||5;
+        const search = req.query.search||"";
+
+        const skip = (page - 1)*limit;
+
+        //search filter
+        const query = {
+            user: req.user._id,
+            originalName: { $regex:search, $options:"i"}
+        };
+
+        //fetch files
+        const files = await File.find(query)
+            .sort({ createdAt: -1}) //newly created first
+            .skip(skip)
+            .limit(limit);
+
+        //total count
+        const total = await File.countDocuments(query);
+
+        const filesWithUrl = files.map(file => ({
+            ...file._doc,
+            fileUrl: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+        }));
+
+        //response
+        res.status(200).json({
+            total,
+            page,
+            pages: Math.ceil(total/limit),
+            files: filesWithUrl
+        });
+
     }catch(error){
         res.status(500).json({message:error.message});
     }
