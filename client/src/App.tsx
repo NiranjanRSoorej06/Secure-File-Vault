@@ -1,4 +1,5 @@
 import { useEffect,useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "./api";
 import type { FileType } from "./types";
 
@@ -7,6 +8,8 @@ function App(){
   const [file,setFile] = useState<File | null>(null);
   
   const token = localStorage.getItem("token");
+
+  const navigate = useNavigate();
 
   //fetch files
   const getFiles = async () =>{
@@ -24,6 +27,12 @@ function App(){
   };
 
   useEffect(() => {
+
+    //if no token -> login
+    if(!token){
+      navigate("/login");
+      return;
+    }
     getFiles();
   },[]);
 
@@ -94,6 +103,14 @@ function App(){
   return (
     <div style={{ padding: "20px" }}>
       <h2>Secure File Vault</h2>
+      <button 
+        onClick={()=>{
+          localStorage.removeItem("token");
+          navigate("/login");
+        }}
+      >
+        Logout
+      </button>
 
       {/*Upload*/}
       <input type="file"

@@ -2,14 +2,14 @@ import { useState } from "react";
 import API from "../api";
 
 function Register(){
-    const [name,setName] = useState("");
+    const [username,setUsername] = useState("");
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
 
     const handleRegister = async () =>{
         try{
             await API.post("/users/register",{
-                name,
+                username,
                 email,
                 password
             });
@@ -29,7 +29,7 @@ function Register(){
             <input
                 type="text"
                 placeholder="Name"
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
             />
             <br/>
 
