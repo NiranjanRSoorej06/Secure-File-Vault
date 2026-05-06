@@ -62,6 +62,35 @@ function App(){
     }
   };
 
+  //Download file
+  const downloadFile = async (id: string,filename: string) => {
+    try{
+      const response = await API.get(`/files/${id}`,{
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      //create downlodable URL
+      const url = window.URL.createObjectURL(
+        new Blob([response.data])
+      );
+
+      //create temporary link
+      const link = document.createElement("a");
+      link.href=url;
+      link.setAttribute("download",filename);
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+    }catch(err){
+      console.log(err);
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Secure File Vault</h2>
@@ -80,8 +109,7 @@ function App(){
 
             <button
               onClick={() => 
-                window.open(`http://localhost:5000/api/files/${f._id}`)
-              }
+                downloadFile(f._id,f.originalName)}
             >
               Download
             </button>
