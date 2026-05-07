@@ -2,6 +2,7 @@ import { useEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "./api";
 import type { FileType } from "./types";
+import { isLoggedIn } from "./utils/auth";
 
 function App(){
   const [files,setFiles] =useState<FileType[]>([]);
@@ -29,7 +30,7 @@ function App(){
   useEffect(() => {
 
     //if no token -> login
-    if(!token){
+    if(!isLoggedIn()){
       navigate("/login");
       return;
     }

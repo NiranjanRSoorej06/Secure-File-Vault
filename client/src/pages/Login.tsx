@@ -1,9 +1,19 @@
 import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../utils/auth";
 import API from "../api";
 
 function Login(){
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        if(isLoggedIn()){
+            navigate("/");
+        }
+    },[]);
 
     const handleLogin = async ()=>{
         try{
