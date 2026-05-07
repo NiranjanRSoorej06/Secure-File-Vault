@@ -4,6 +4,10 @@ import API from "./api";
 import type { FileType } from "./types";
 import { isLoggedIn } from "./utils/auth";
 
+import Header from "./components/Header";
+import UploadBox from "./components/UploadBox";
+import FileList from "./components/FileList";
+
 function App(){
   const [files,setFiles] =useState<FileType[]>([]);
   const [file,setFile] = useState<File | null>(null);
@@ -103,38 +107,24 @@ function App(){
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Secure File Vault</h2>
-      <button 
-        onClick={()=>{
+      
+      <Header
+        onLogout={()=> {
           localStorage.removeItem("token");
           navigate("/login");
         }}
-      >
-        Logout
-      </button>
-
-      {/*Upload*/}
-      <input type="file"
-      onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
-      <button onClick={uploadFile}>Upload</button>
 
-      {/* Filr List*/}
-      <ul>
-        {files.map((f)=>(
-          <li key={f._id}>
-            {f.originalName}
+      <UploadBox
+        setFile={setFile}
+        uploadFile={uploadFile}
+      />
 
-            <button
-              onClick={() => 
-                downloadFile(f._id,f.originalName)}
-            >
-              Download
-            </button>
-            <button onClick={()=> deleteFile(f._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <FileList
+        files={files}
+        onDownload={downloadFile}
+        onDelete={deleteFile}
+      />
     </div>
   );
 }
