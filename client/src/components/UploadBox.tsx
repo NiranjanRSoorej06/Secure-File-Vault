@@ -1,6 +1,7 @@
 type Props ={
     setFile: React.Dispatch<React.SetStateAction<File | null>>;
     uploadFile: () =>void;
+    loading:boolean;
 };
 
 function UploadBox({ setFile,uploadFile }:Props){

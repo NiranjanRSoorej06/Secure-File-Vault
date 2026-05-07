@@ -11,7 +11,10 @@ import FileList from "./components/FileList";
 function App(){
   const [files,setFiles] =useState<FileType[]>([]);
   const [file,setFile] = useState<File | null>(null);
-  
+  const [loading,setLoading] = useState(false);
+  const [message,setMessage] = useState("");
+  const [error,setError] = useState("");
+
   const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
@@ -28,6 +31,7 @@ function App(){
       setFiles(res.data.files);
     }catch(err){
       console.log(err);
+      setError("Failed to fetch files");
     }
   };
 
@@ -48,6 +52,10 @@ function App(){
     const formData = new FormData();
     formData.append("file",file);
 
+    setLoading(true);
+    setError("");
+    setMessage("");
+
     try{
       await API.post("/files/upload",formData, {
         headers: {
@@ -58,11 +66,17 @@ function App(){
       getFiles();
     }catch(err){
       console.log(err);
+      setError("Upload failed");
     }
+    setLoading(false);
   };
 
   //Delete file
   const deleteFile = async (id: string) => {
+    
+    setLoading(true);
+    setError("");
+    setMessage("");
     try{
       await API.delete(`/files/${id}`,{
         headers: {
@@ -70,10 +84,15 @@ function App(){
         },
       });
 
+      setMessage("File deleted successfully");
+
       getFiles();
     }catch(err){
       console.log(err);
+      setError("Delete failed");
     }
+
+    setLoading(false);
   };
 
   //Download file
@@ -115,9 +134,22 @@ function App(){
         }}
       />
 
+      {message && (
+        <p style={{ color: "lightgreen" }}>
+          {message}
+        </p>
+      )}
+
+      {error && (
+        <p style={{ color:"tomato"}}>
+          {error}
+        </p>
+      )}
+
       <UploadBox
         setFile={setFile}
         uploadFile={uploadFile}
+        loading={loading}
       />
 
       <FileList
