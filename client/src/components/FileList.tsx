@@ -1,5 +1,5 @@
 import type { FileType } from "../types";
-import FileCard from "./Filecard";
+import FileCard from "./FileCard";
 
 type Props ={
     files: FileType[];
@@ -8,12 +8,17 @@ type Props ={
         filename: string
     )=> void;
     onDelete: (id:string) => void;
+    onRename:(
+        id:string,
+        currentName:string
+    ) => void;
 };
 
 function FileList({
     files,
     onDownload,
     onDelete,
+    onRename,
 }: Props){
     return (
         <ul>
@@ -23,6 +28,7 @@ function FileList({
                     file={file}
                     onDownload={onDownload}
                     onDelete={onDelete}
+                    onRename={onRename}
                 />
             ))}
         </ul>

@@ -95,6 +95,45 @@ function App(){
     setLoading(false);
   };
 
+  const renameFile = async (
+    id:string,
+    currentName:string
+  ) => {
+
+    const newName=prompt(
+      "Enter new file name",
+      currentName
+    );
+
+    if(!newName) return;
+
+    setLoading(true);
+    setError("");
+    setMessage("");
+
+    try{
+      await API.put(
+        `/files/${id}/rename`,
+        {
+          newName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setMessage("File renamed succesfully");
+      getFiles();
+    }catch(err){
+      console.log(err);
+      setError("Rename failed");
+    }
+
+    setLoading(false);
+  };
+
   //Download file
   const downloadFile = async (id: string,filename: string) => {
     try{
@@ -156,6 +195,7 @@ function App(){
         files={files}
         onDownload={downloadFile}
         onDelete={deleteFile}
+        onRename={renameFile}
       />
     </div>
   );

@@ -7,12 +7,17 @@ type Props = {
         filename: string
     ) => void;
     onDelete: (id: string) => void;
+    onRename:(
+        id:string,
+        currentName:string
+    ) => void
 };
 
 function FileCard({
     file,
     onDownload,
     onDelete,
+    onRename,
 }: Props ){
     return (
         <li
@@ -34,6 +39,12 @@ function FileCard({
                 onClick={()=>onDelete(file._id)}
             >
                 Delete
+            </button>
+
+            <button 
+                onClick={() =>onRename(file._id,file.originalName)}
+            >
+                Rename
             </button>
         </li>
     );
