@@ -20,7 +20,7 @@ const uploadFile = async (req,res) =>{
         res.status(200).json({
             message:"File uploaded successfully",
             file:newFile,
-            fileUrl:`${req.protocol}://${req.get("host")}/api/files/${newFile._id}`
+            fileUrl:`${req.protocol}://${req.get("host")}/uploads/${newFile.filename}`
         });
     }catch(error){
         res.status(500).json({message:error.message});
@@ -50,21 +50,21 @@ const getUserFiles = async (req,res) =>{
             .sort({ createdAt: -1}) //newly created first
             .skip(skip)
             .limit(limit);
+        const updatedFiles = files.map((file) => ({
+            ...file.toObject(),
+            fileUrl:
+                `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
+        }));
 
         //total count
         const total = await File.countDocuments(query);
-
-        const filesWithUrl = files.map(file => ({
-            ...file._doc,
-            fileUrl: `${req.protocol}://${req.get("host")}/api/files/${file._id}`
-        }));
 
         //response
         res.status(200).json({
             total,
             page,
             pages: Math.ceil(total/limit),
-            files: filesWithUrl
+            files:updatedFiles
         });
 
     }catch(error){
