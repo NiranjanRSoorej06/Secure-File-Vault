@@ -14,6 +14,9 @@ function App(){
   const [loading,setLoading] = useState(false);
   const [message,setMessage] = useState("");
   const [error,setError] = useState("");
+  const [page,setPage] = useState(1);
+  const [pages,setPages] = useState(1);
+  const [search,setSearch] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -22,13 +25,16 @@ function App(){
   //fetch files
   const getFiles = async () =>{
     try{
-      const res = await API.get("/files",{
+      const res = await API.get(
+        `/files?page=${page}&limit=5&search=${search}`,
+        {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       setFiles(res.data.files);
+      setPages(res.data.pages);
     }catch(err){
       console.log(err);
       setError("Failed to fetch files");
@@ -43,7 +49,7 @@ function App(){
       return;
     }
     getFiles();
-  },[]);
+  },[page,search]);
 
   //upload file
   const uploadFile = async () =>{
@@ -184,6 +190,19 @@ function App(){
           {error}
         </p>
       )}
+      <div style={{ marginBottom:"20px"}}>
+
+        <input
+          type="text"
+          placeholder="Search files..."
+          value={search}
+          onChange={(e)=>{
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+
+      </div>
 
       <UploadBox
         setFile={setFile}
@@ -197,6 +216,34 @@ function App(){
         onDelete={deleteFile}
         onRename={renameFile}
       />
+
+      <div 
+        style= {{
+          marginTop:"20px",
+          display:"flex",
+          gap:"10px",
+          alignItems:"center",
+        }}
+      >
+        <button
+          disabled={page === 1}
+          onClick={()=>setPage(page-1)}
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {page} of {pages}
+        </span>
+
+        <button
+          disabled={page===pages}
+          onClick={()=>setPage(page+1)}
+        >
+          Next
+        </button>
+        
+      </div>
     </div>
   );
 }
