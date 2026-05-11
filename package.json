@@ -5,7 +5,10 @@
         "start": "node server.js"
     },
     "devDependencies": {
-        "nodemon": "^3.1.14"
+        "autoprefixer": "^10.5.0",
+        "nodemon": "^3.1.14",
+        "postcss": "^8.5.14",
+        "tailwindcss": "^4.3.0"
     },
     "name": "secure-file-vault",
     "version": "1.0.0",

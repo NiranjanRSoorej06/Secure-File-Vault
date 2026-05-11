@@ -11,7 +11,9 @@ function Header({ onLogout }:Props){
                 marginBottom:"20px",
             }}
         >
-            <h2>Secure File Vault</h2>
+            <h2 className="text-4xl font-bold">
+                Secure File Vault
+            </h2>
 
             <button onClick={onLogout}>
                 Logout

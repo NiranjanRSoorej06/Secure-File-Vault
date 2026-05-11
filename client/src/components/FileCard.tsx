@@ -29,58 +29,105 @@ function FileCard({
 
     return (
         <li
-            style={{
-                marginBottom:"10px",
-            }}
+            className="
+                bg-slate-900
+                border
+                border-slate-800
+                p-5
+                rounded-2xl
+                mb-4
+            "
         >   
-            {/*Image Preview*/}
-            {isImage && file.fileUrl && (
+            <div
+            className="
+                flex
+                items-center
+                justify-between
+                gap-4
+                flex-wrap
+            "
+            >
+            
+            {/* Left Side */}
+            <div className="flex items-center gap-4">
+
+                {/* Image Preview */}
+                {isImage && file.fileUrl && (
+                <img
+                    src={`${file.fileUrl}?t=${Date.now()}`}
+                    alt={file.originalName}
+                    className="
+                    w-24
+                    h-24
+                    object-cover
+                    rounded-xl
+                    "
+                />
+                )}
+
                 <div>
-                    <img 
-                        src={`${file.fileUrl}?t=${Date.now()}`}
-                        alt={file.originalName}
-                        width={"120"}
-                        style={{
-                            borderRadius:"8px",
-                            marginBottom:"10px"
-                        }}
-                    />
+                <p className="font-medium text-lg">
+                    {file.originalName}
+                </p>
                 </div>
-            )}
+            </div>
 
-            {/* PDF Preview*/}
-            {isPDF && file.fileUrl && (
-                <div style={{ marginBottom:"10px" }}>
-                    <a
-                        href={file.fileUrl}
-                        target="_blank"
-                    >
-                        Preview PDF
-                    </a>
-                </div>
-            )}
+            {/* Right Side */}
+            <div className="flex gap-2 flex-wrap">
 
-            {file.originalName}
-
-            <button
-                onClick={()=>
-                    onDownload(file._id,file.originalName)
+                <button
+                onClick={() =>
+                    onDownload(
+                    file._id,
+                    file.originalName
+                    )
                 }
-            >
+                className="
+                    bg-slate-800
+                    hover:bg-slate-700
+                    px-4
+                    py-2
+                    rounded-lg
+                "
+                >
                 Download
-            </button>
+                </button>
 
-            <button
-                onClick={()=>onDelete(file._id)}
-            >
+                <button
+                onClick={() =>
+                    onDelete(file._id)
+                }
+                className="
+                    bg-red-600
+                    hover:bg-red-700
+                    px-4
+                    py-2
+                    rounded-lg
+                "
+                >
                 Delete
-            </button>
+                </button>
 
-            <button 
-                onClick={() =>onRename(file._id,file.originalName)}
-            >
+                <button
+                onClick={() =>
+                    onRename(
+                    file._id,
+                    file.originalName
+                    )
+                }
+                className="
+                    bg-violet-600
+                    hover:bg-violet-700
+                    px-4
+                    py-2
+                    rounded-lg
+                "
+                >
                 Rename
-            </button>
+                </button>
+
+            </div>
+            </div>
         </li>
     );
 }

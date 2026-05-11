@@ -170,79 +170,91 @@ function App(){
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="min-h-screen bg-slate-950 text-white p-6">
       
-      <Header
-        onLogout={()=> {
-          localStorage.removeItem("token");
-          navigate("/login");
-        }}
-      />
-
-      {message && (
-        <p style={{ color: "lightgreen" }}>
-          {message}
-        </p>
-      )}
-
-      {error && (
-        <p style={{ color:"tomato"}}>
-          {error}
-        </p>
-      )}
-      <div style={{ marginBottom:"20px"}}>
-
-        <input
-          type="text"
-          placeholder="Search files..."
-          value={search}
-          onChange={(e)=>{
-            setSearch(e.target.value);
-            setPage(1);
+      <div className="max-w-5xl mx-auto">
+        <Header
+          onLogout={()=> {
+            localStorage.removeItem("token");
+            navigate("/login");
           }}
         />
 
-      </div>
+        {message && (
+          <p style={{ color: "lightgreen" }}>
+            {message}
+          </p>
+        )}
 
-      <UploadBox
-        setFile={setFile}
-        uploadFile={uploadFile}
-        loading={loading}
-      />
+        {error && (
+          <p style={{ color:"tomato"}}>
+            {error}
+          </p>
+        )}
+        <div style={{ marginBottom:"20px"}}>
 
-      <FileList
-        files={files}
-        onDownload={downloadFile}
-        onDelete={deleteFile}
-        onRename={renameFile}
-      />
+          <input
+            className="
+            px-4 py-2
+            rounded-lg
+            bg-slate-800
+            border border-slate-700
+            text-white
+            outline-none
+            w-full
+            max-w-sm
+            "
+            type="text"
+            placeholder="Search files..."
+            value={search}
+            onChange={(e)=>{
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
 
-      <div 
-        style= {{
-          marginTop:"20px",
-          display:"flex",
-          gap:"10px",
-          alignItems:"center",
-        }}
-      >
-        <button
-          disabled={page === 1}
-          onClick={()=>setPage(page-1)}
+        </div>
+
+        <UploadBox
+          setFile={setFile}
+          uploadFile={uploadFile}
+          loading={loading}
+        />
+
+        <FileList
+          files={files}
+          onDownload={downloadFile}
+          onDelete={deleteFile}
+          onRename={renameFile}
+        />
+
+        <div 
+          style= {{
+            marginTop:"20px",
+            display:"flex",
+            gap:"10px",
+            alignItems:"center",
+          }}
         >
-          Prev
-        </button>
+          <button
+            disabled={page === 1}
+            onClick={()=>setPage(page-1)}
+          >
+            Prev
+          </button>
 
-        <span>
-          Page {page} of {pages}
-        </span>
+          <span>
+            Page {page} of {pages}
+          </span>
 
-        <button
-          disabled={page===pages}
-          onClick={()=>setPage(page+1)}
-        >
-          Next
-        </button>
-        
+          <button
+            disabled={page===pages}
+            onClick={()=>setPage(page+1)}
+          >
+            Next
+          </button>
+          
+        </div>
       </div>
     </div>
   );
