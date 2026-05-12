@@ -214,6 +214,7 @@ function App(){
           onDownload={downloadFile}
           onDelete={deleteFile}
           onRename={renameFile}
+          loading={loading}
         />
 
         <div 

@@ -1,5 +1,6 @@
 import type { FileType } from "../types";
 import FileCard from "./FileCard";
+import FileSkeleton from "./FileSkeleton";
 
 type Props ={
     files: FileType[];
@@ -12,6 +13,7 @@ type Props ={
         id:string,
         currentName:string
     ) => void;
+    loading:boolean;
 };
 
 function FileList({
@@ -19,7 +21,18 @@ function FileList({
     onDownload,
     onDelete,
     onRename,
+    loading,
 }: Props){
+
+    if(loading){
+        return(
+            <>
+                <FileSkeleton />
+                <FileSkeleton />
+                <FileSkeleton />
+            </>
+        );
+    }
 
     if(files.length===0){
         return (
