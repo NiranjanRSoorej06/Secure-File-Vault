@@ -19,14 +19,6 @@ function FileCard({
     onDelete,
     onRename,
 }: Props ){
-
-    const isImage =
-        file.originalName.endsWith(".jpg") ||
-        file.originalName.endsWith(".jpeg") ||
-        file.originalName.endsWith(".png");
-    const isPDF =
-        file.originalName.endsWith(".pdf");
-
         return (
         <div
             className="

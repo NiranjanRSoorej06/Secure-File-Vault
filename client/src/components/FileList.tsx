@@ -20,6 +20,32 @@ function FileList({
     onDelete,
     onRename,
 }: Props){
+
+    if(files.length===0){
+        return (
+            <div
+                className="
+                    bg-slate-900
+                    border border-slate-800
+                    rounded-2xl p-10
+                    text-center mt-6
+                "
+            >
+                <div className="text-6xl mb-4">
+                    📂
+                </div>
+
+                <h2 className="text-2xl font-bold">
+                    No Files Yet
+                </h2>
+
+                <p className="text-slate-400 mt-2">
+                    Upload your first file
+                </p>
+            </div>
+        )
+    }
+
     return (
         <ul>
             {files.map((file)=>(
