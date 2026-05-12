@@ -7,13 +7,12 @@ import { isLoggedIn } from "./utils/auth";
 import Header from "./components/Header";
 import UploadBox from "./components/UploadBox";
 import FileList from "./components/FileList";
+import { toast } from "react-toastify";
 
 function App(){
   const [files,setFiles] =useState<FileType[]>([]);
   const [file,setFile] = useState<File | null>(null);
   const [loading,setLoading] = useState(false);
-  const [message,setMessage] = useState("");
-  const [error,setError] = useState("");
   const [page,setPage] = useState(1);
   const [pages,setPages] = useState(1);
   const [search,setSearch] = useState("");
@@ -37,10 +36,10 @@ function App(){
       setPages(res.data.pages);
     }catch(err){
       console.log(err);
-      setError("Failed to fetch files");
+      toast.error("Failed to fetch files");
     }
   };
-
+   
   useEffect(() => {
 
     //if no token -> login
@@ -59,8 +58,6 @@ function App(){
     formData.append("file",file);
 
     setLoading(true);
-    setError("");
-    setMessage("");
 
     try{
       await API.post("/files/upload",formData, {
@@ -70,9 +67,11 @@ function App(){
       });
 
       getFiles();
+
+      toast.success("File uploaded");
     }catch(err){
       console.log(err);
-      setError("Upload failed");
+      toast.error("Upload failed");
     }
     setLoading(false);
   };
@@ -81,8 +80,6 @@ function App(){
   const deleteFile = async (id: string) => {
     
     setLoading(true);
-    setError("");
-    setMessage("");
     try{
       await API.delete(`/files/${id}`,{
         headers: {
@@ -90,12 +87,12 @@ function App(){
         },
       });
 
-      setMessage("File deleted successfully");
+      toast.success("File deleted successfully");
 
       getFiles();
     }catch(err){
       console.log(err);
-      setError("Delete failed");
+      toast.error("Delete failed");
     }
 
     setLoading(false);
@@ -114,8 +111,6 @@ function App(){
     if(!newName) return;
 
     setLoading(true);
-    setError("");
-    setMessage("");
 
     try{
       await API.put(
@@ -130,11 +125,11 @@ function App(){
         }
       );
 
-      setMessage("File renamed succesfully");
+      toast.success("File renamed");
       getFiles();
     }catch(err){
       console.log(err);
-      setError("Rename failed");
+      toast.error("Rename failed");
     }
 
     setLoading(false);
@@ -180,17 +175,6 @@ function App(){
           }}
         />
 
-        {message && (
-          <p style={{ color: "lightgreen" }}>
-            {message}
-          </p>
-        )}
-
-        {error && (
-          <p style={{ color:"tomato"}}>
-            {error}
-          </p>
-        )}
         <div style={{ marginBottom:"20px"}}>
 
           <input
