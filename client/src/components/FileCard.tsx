@@ -27,108 +27,142 @@ function FileCard({
     const isPDF =
         file.originalName.endsWith(".pdf");
 
-    return (
-        <li
+        return (
+        <div
             className="
-                bg-slate-900
-                border
-                border-slate-800
-                p-5
-                rounded-2xl
-                mb-4
+            bg-slate-900
+            border border-slate-800
+            rounded-2xl
+            p-5
+            mb-5
+            flex
+            items-center
+            justify-between
+            gap-4
+            flex-wrap
             "
-        >   
-            <div
-            className="
-                flex
-                items-center
-                justify-between
-                gap-4
-                flex-wrap
-            "
-            >
-            
-            {/* Left Side */}
+        >
+
+            {/* LEFT */}
             <div className="flex items-center gap-4">
 
-                {/* Image Preview */}
-                {isImage && file.fileUrl && (
-                <img
-                    src={`${file.fileUrl}?t=${Date.now()}`}
-                    alt={file.originalName}
+            {/* Image Preview */}
+            {
+                file.fileUrl?.match(
+                /\.(jpg|jpeg|png)$/i
+                ) ? (
+                
+                    <div
+                        className="
+                            w-20
+                            h-20
+                            rounded-xl
+                            overflow-hidden
+                            border border-slate-700
+                            flex-shrink-0
+                        "
+                        >
+                        <img
+                            src={file.fileUrl}
+                            alt={file.originalName}
+                            className="
+                            w-full
+                            h-full
+                            object-cover
+                            "
+                        />
+                        </div>
+
+                ) : (
+                <div
                     className="
-                    w-24
-                    h-24
-                    object-cover
+                    w-20
+                    h-20
                     rounded-xl
-                    "
-                />
-                )}
-
-                <div>
-                <p className="font-medium text-lg">
-                    {file.originalName}
-                </p>
-                </div>
-            </div>
-
-            {/* Right Side */}
-            <div className="flex gap-2 flex-wrap">
-
-                <button
-                onClick={() =>
-                    onDownload(
-                    file._id,
-                    file.originalName
-                    )
-                }
-                className="
                     bg-slate-800
-                    hover:bg-slate-700
-                    px-4
-                    py-2
-                    rounded-lg
-                "
+                    flex
+                    items-center
+                    justify-center
+                    text-3xl
+                    "
                 >
-                Download
-                </button>
+                    📄
+                </div>
+                )
+            }
 
-                <button
-                onClick={() =>
-                    onDelete(file._id)
-                }
+            {/* File Name */}
+            <div>
+                <p
                 className="
-                    bg-red-600
-                    hover:bg-red-700
-                    px-4
-                    py-2
-                    rounded-lg
+                    text-lg
+                    font-medium
+                    break-all
                 "
                 >
-                Delete
-                </button>
+                {file.originalName}
+                </p>
+            </div>
 
-                <button
+            </div>
+
+            {/* RIGHT */}
+            <div className="flex gap-3">
+
+            <button
                 onClick={() =>
-                    onRename(
+                onDownload(
                     file._id,
                     file.originalName
-                    )
+                )
                 }
                 className="
-                    bg-violet-600
-                    hover:bg-violet-700
-                    px-4
-                    py-2
-                    rounded-lg
+                bg-slate-700
+                hover:bg-slate-600
+                px-4
+                py-2
+                rounded-lg
                 "
-                >
+            >
+                Download
+            </button>
+
+            <button
+                onClick={() =>
+                onDelete(file._id)
+                }
+                className="
+                bg-red-600
+                hover:bg-red-700
+                px-4
+                py-2
+                rounded-lg
+                "
+            >
+                Delete
+            </button>
+
+            <button
+                onClick={() =>
+                onRename(
+                    file._id,
+                    file.originalName
+                )
+                }
+                className="
+                bg-violet-600
+                hover:bg-violet-700
+                px-4
+                py-2
+                rounded-lg
+                "
+            >
                 Rename
-                </button>
+            </button>
 
             </div>
-            </div>
-        </li>
+
+        </div>
     );
 }
 
