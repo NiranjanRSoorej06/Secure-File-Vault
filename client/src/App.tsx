@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import UploadBox from "./components/UploadBox";
 import FileList from "./components/FileList";
 import { toast } from "react-toastify";
+import StatsCards from "./components/StatsCard";
 
 function App(){
   const [files,setFiles] =useState<FileType[]>([]);
@@ -198,6 +199,8 @@ function App(){
           />
 
         </div>
+        
+        <StatsCards files={files} />
 
         <UploadBox
           file={file}
