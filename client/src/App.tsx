@@ -200,6 +200,7 @@ function App(){
         </div>
 
         <UploadBox
+          file={file}
           setFile={setFile}
           uploadFile={uploadFile}
           loading={loading}
