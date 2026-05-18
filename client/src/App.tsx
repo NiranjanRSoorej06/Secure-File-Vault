@@ -21,6 +21,9 @@ function App(){
   const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
+  const safePages = Math.max(1, pages);
+  const hasPreviousPage = page > 1;
+  const hasNextPage = page < safePages;
 
   //fetch files
   const getFiles = async () =>{
@@ -33,8 +36,15 @@ function App(){
         },
       });
 
+      const nextPages = Math.max(1, res.data.pages || 0);
+
       setFiles(res.data.files);
-      setPages(res.data.pages);
+
+      setPages(nextPages);
+
+      if (page > nextPages) {
+        setPage(nextPages);
+      }
     }catch(err){
       console.log(err);
       toast.error("Failed to fetch files");
@@ -171,8 +181,14 @@ function App(){
       <div className="max-w-5xl mx-auto">
         <Header
           onLogout={()=> {
-            localStorage.removeItem("token");
-            navigate("/login");
+            try {
+              localStorage.removeItem("token");
+              toast.success("Logout successful");
+              navigate("/login");
+            } catch (err) {
+              console.log(err);
+              toast.error("Logout failed");
+            }
           }}
         />
 
@@ -217,32 +233,28 @@ function App(){
           loading={loading}
         />
 
-        <div 
-          style= {{
-            marginTop:"20px",
-            display:"flex",
-            gap:"10px",
-            alignItems:"center",
-          }}
-        >
+        <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-400">
+            Showing page <span className="text-white">{page}</span> of <span className="text-white">{safePages}</span>
+          </p>
+
+          <div className="flex items-center gap-3">
           <button
-            disabled={page === 1}
-            onClick={()=>setPage(page-1)}
+            disabled={!hasPreviousPage}
+            onClick={()=>setPage((currentPage)=>Math.max(1, currentPage-1))}
+            className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Prev
           </button>
 
-          <span>
-            Page {page} of {pages}
-          </span>
-
           <button
-            disabled={page===pages}
-            onClick={()=>setPage(page+1)}
+            disabled={!hasNextPage}
+            onClick={()=>setPage((currentPage)=>Math.min(safePages, currentPage+1))}
+            className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next
           </button>
-          
+          </div>
         </div>
       </div>
     </div>
