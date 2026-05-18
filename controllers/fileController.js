@@ -2,82 +2,97 @@
 //@route POST /api/files/upload
 //@access Private
 const File = require("../models/File");
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+function uploadBufferToCloudinary(buffer, folder = 'secure-file-vault'){
+    return new Promise((resolve,reject)=>{
+        const stream = cloudinary.uploader.upload_stream({ folder }, (error,result)=>{
+            if(error) reject(error);
+            else resolve(result);
+        });
+        streamifier.createReadStream(buffer).pipe(stream);
+    });
+}
 
 const uploadFile = async (req,res) =>{
     try{
         if(!req.file){
             return res.status(400).json({message:"No file uploaded"});
         }
-    
+
+        // upload to Cloudinary from buffer
+        const result = await uploadBufferToCloudinary(req.file.buffer);
+
         const newFile = await File.create({
             user:req.user._id,
-            filename: req.file.filename,
+            filename: result.public_id,
             originalName:req.file.originalname,
-            fileSize:req.file.size
+            fileSize:req.file.size,
+            fileUrl: result.secure_url,
+            publicId: result.public_id,
         });
 
         res.status(200).json({
             message:"File uploaded successfully",
             file:newFile,
-            fileUrl:`${req.protocol}://${req.get("host")}/uploads/${newFile.filename}`
+            fileUrl: newFile.fileUrl
         });
     }catch(error){
         res.status(500).json({message:error.message});
     }
-}; 
+};
 
 //@desc Get logged-in user's files
 //@route GET /api/files
 //@access Private
-const getUserFiles = async (req,res) =>{
-    try{
-        //query params
-        const page = parseInt(req.query.page)||1;
-        const limit = parseInt(req.query.limit)||5;
-        const search = req.query.search||"";
+const getUserFiles = async (req, res) => {
+    try {
+        const requestedPage = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const search = req.query.search || "";
 
-        const skip = (page - 1)*limit;
-
-        //search filter
         const query = {
             user: req.user._id,
-            originalName: { $regex:search, $options:"i"}
+            originalName: { $regex: search, $options: "i" },
         };
 
-        //fetch files
+        const total = await File.countDocuments(query);
+        const pages = Math.max(1, Math.ceil(total / limit));
+        const page = Math.min(Math.max(requestedPage, 1), pages);
+        const skip = (page - 1) * limit;
+
         const files = await File.find(query)
-            .sort({ createdAt: -1}) //newly created first
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
+
         const updatedFiles = files.map((file) => ({
             ...file.toObject(),
-            fileUrl:
-                `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
+            fileUrl: file.fileUrl || `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
         }));
 
-        //total count
-        const total = await File.countDocuments(query);
-
-        //response
         res.status(200).json({
             total,
             page,
-            pages: Math.ceil(total/limit),
-            files:updatedFiles
+            pages,
+            files: updatedFiles,
         });
-
-    }catch(error){
-        res.status(500).json({message:error.message});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
 //@desc Download file
 //@route GET /api/files/:id
 //@access Private
-const path = require("path");
-const fs = require("fs");
-
 const downloadFile = async (req,res)=>{
     try{
         //1. Validate ObjectId
@@ -97,21 +112,16 @@ const downloadFile = async (req,res)=>{
             return res.status(401).json({message:"Not authorized"});
         }
 
-        //4. Build safe file path
-        const filePath = path.join(__dirname,"..","uploads",file.filename);
-
-        //5. Check file exists
-        if(!fs.existsSync(filePath)){
-            return res.status(404).json({message:"File missing on server"});
+        // Redirect client to the stored file URL (Cloudinary)
+        if(file.fileUrl){
+            return res.redirect(file.fileUrl);
         }
 
-        //6. Send file securely
-        res.download(filePath,file.originalName);
+        return res.status(404).json({message:"File URL not available"});
     }catch(error){
         return res.status(500).json({message:error.message});
     }
 };
-
 
 //@desc Delete file
 //@route DELETE /api/files/:id
@@ -136,14 +146,14 @@ const deleteFile = async (req,res)=>{
             return res.status(401).json({message:"Not authorized"});
         }
         
-        //4. Builf file path
-        const filePath = path.join(__dirname,"../uploads",file.filename);
-
-        //5. Delete file from disk(safe)
-        if(fs.existsSync(filePath)){
-            fs.unlinkSync(filePath);
-        }else{
-            console.warn("File missing on disk: ",filePath);
+        // If file stored in Cloudinary, remove it
+        if(file.publicId || file.filename){
+            const publicId = file.publicId || file.filename;
+            try{
+                await cloudinary.uploader.destroy(publicId);
+            }catch(err){
+                console.warn("Failed to remove asset from Cloudinary", err.message);
+            }
         }
 
         //6. Delete from DB
@@ -170,7 +180,7 @@ const renameFile = async (req,res)=>{
 
         //2. Validate input
         if(!newName || !newName.trim()){
-            return res.status(400).json({meassage:"New name is required"});
+            return res.status(400).json({message:"New name is required"});
         }
 
         //Bonus: Prevent path tricks / weird chars
@@ -191,19 +201,13 @@ const renameFile = async (req,res)=>{
         file.originalName= safeName;
         await file.save();
 
-        //6. Respond (include URL)
-        const fileUrl = `${req.protocol}://${req.get("host")}/api/files/${file._id}`;
-
         res.status(200).json({
             message:"File renamed Successfully",
-            file:{
-                ...file._doc,
-                fileUrl
-            }
+            file
         });
     }catch(error){
         return res.status(500).json({message:error.message});
     }
 };
 
-module.exports = { uploadFile,getUserFiles,downloadFile,deleteFile,renameFile };
+module.exports = { uploadFile, getUserFiles, downloadFile, deleteFile, renameFile };

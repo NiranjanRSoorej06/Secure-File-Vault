@@ -18,6 +18,13 @@ const fileSchema = new mongoose.Schema(
         fileSize:{
             type:Number
         }
+        ,
+        fileUrl: {
+            type: String
+        },
+        publicId: {
+            type: String
+        }
     },
     {
         timestamps : true

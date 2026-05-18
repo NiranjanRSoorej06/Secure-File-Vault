@@ -2,14 +2,8 @@ const multer = require("multer");
 const path = require("path");
 
 //1. storage config
-const storage = multer.diskStorage({
-    destination: (req,file,cb) =>{
-        cb(null,"uploads/");
-    },
-    filename: (req,file,cb) =>{
-        cb(null,Date.now()+"-"+file.originalname);
-    }
-});
+// Use memory storage so files are available as buffers for remote upload
+const storage = multer.memoryStorage();
 
 //2. Allowed file types
 const allowedTypes =[
